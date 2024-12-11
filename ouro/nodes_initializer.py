@@ -5,7 +5,6 @@ from typing import List
 from typing import Set
 from typing import Tuple
 from typing import Union
-
 from ouro.reader import Reader
 
 
@@ -20,13 +19,16 @@ class Node:
 
 
 class NodesInitializer:
-    def __init__(self, path: str, ignore: Union[List[str], None] = None) -> None:
+    def __init__(
+        self, path: str, walker: callable, ignore: Union[List[str], None] = None
+    ) -> None:
         self.nodes: Dict[Path, "Node"] = {}
 
         with Reader(path, ignore=ignore) as reader_obj:
             self._files = reader_obj.files
             self._prg_path = reader_obj.path
 
+        self._walker = walker
         self._initialize()
 
     def _get_node(self, file_path: Path) -> "Node":
@@ -40,7 +42,7 @@ class NodesInitializer:
     ) -> List[Union[ast.Import, ast.ImportFrom]]:
         return [
             node
-            for node in ast.walk(ast.parse(file_content))
+            for node in self._walker(ast.parse(file_content))
             if isinstance(node, (ast.Import, ast.ImportFrom))
         ]
 

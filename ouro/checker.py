@@ -6,16 +6,28 @@ from typing import Union
 from ouro.imports_graph import ImportsGraph
 from ouro.nodes_initializer import Node
 from ouro.nodes_initializer import NodesInitializer
+import ast
+
+
+def ast_walk_no_functions(node):
+    if isinstance(node, ast.FunctionDef):
+        return
+    yield node
+    for child in ast.iter_child_nodes(node):
+        yield from ast_walk_no_functions(child)
 
 
 class Checker:
     def __init__(
         self,
         path: str,
+        strict: bool = True,  # setting default true to maintain backwards compatibility
         ignore: Union[List[str], None] = None,
         categorize: bool = True,
     ):
-        _nodes = NodesInitializer(path, ignore=ignore).nodes
+        _nodes = NodesInitializer(
+            path, walker=ast.walk if strict else ast_walk_no_functions, ignore=ignore
+        ).nodes
         self._categorize = categorize
         self._imports_graph = ImportsGraph(list(_nodes.values()))
         self._cycles: Dict = {}

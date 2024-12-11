@@ -40,6 +40,15 @@ def parse():
         help="increase output verbosity (print report to console)",
     )
     parser.add_argument(
+        "-t",
+        "--strict",
+        action="store_true",
+        help=(
+            "analyse internal function imports "
+            + "(normally skipped because they cause no errors)"
+        ),
+    )
+    parser.add_argument(
         "--no-categorize",
         action="store_true",
         help="don't categorize cycles (mark all cycles as critical)",
@@ -72,11 +81,15 @@ def main():
     logger.info(f" ==> PATH       : {args.path}")
     logger.info(f" ==> EXPORT     : {args.export}")
     logger.info(f" ==> VERBOSE    : {args.verbose}")
+    logger.info(f" ==> STRICT     : {args.strict}")
     logger.info(f" ==> IGNORING   : {args.ignore}")
     logger.info(f" ==> CATEGORIZE : {not args.no_categorize}")
 
     checker = Checker(
-        path=args.path, ignore=args.ignore, categorize=(not args.no_categorize)
+        path=args.path,
+        strict=args.strict,
+        ignore=args.ignore,
+        categorize=(not args.no_categorize),
     )
     if cycles := checker.cycles:
         retv = 1

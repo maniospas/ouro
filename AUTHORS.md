@@ -6,4 +6,6 @@
 
 ## Contributors
 
-None yet. Why not be the first?
+- [Emmanouil Krasanakis](https://github.com/maniospas)
+
+Why not be the second?
